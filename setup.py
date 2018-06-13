@@ -103,9 +103,13 @@ if crypto_engine is None:
 else:
   assert crypto_engine in ("openssl", "gnutls", "nss")
 crypto_engine = " --crypto=" + crypto_engine
+
 xmlsec1_cflags = commands.getoutput("xmlsec1-config --cflags" + crypto_engine)
 if xmlsec1_cflags[:2] not in ["-I", "-D"]:
     sys.exit("Error: cannot get XMLSec1 pre-processor and compiler flags; do you have the `libxmlsec1` development package installed?")
+# This flag is required for operation on 64-bit systems and is missing from xmlsec1-config. 
+# See https://github.com/onelogin/python-saml/issues/30
+xmlsec1_cflags += " -DXMLSEC_NO_SIZE_T"
 
 xmlsec1_libs = commands.getoutput("xmlsec1-config --libs" + crypto_engine)
 if xmlsec1_libs[:2] not in ["-l", "-L"]:
